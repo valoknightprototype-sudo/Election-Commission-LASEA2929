@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time election results dashboard. View student turnout statistics, candidate vote tallies, and download Excel audit sheets.">
+    <title>School Student Council Election - Results & Stats Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome for visual indicators -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for premium graphical data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS Excel Library for browser-based spreadsheet generation -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon"><i class="fa-solid fa-check-to-slot"></i></div>
+            <span class="logo-text" id="header-results-title">School Elections</span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" id="nav-vote-link"><i class="fa-solid fa-vote-yea"></i> Vote Portal</a>
+            <a href="results.html" class="active" id="nav-results-link"><i class="fa-solid fa-chart-pie"></i> Election Results</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="glass-card wide active">
+            <h1 id="results-main-heading" style="text-align: center; margin-bottom: 0.5rem;">Election Dashboard</h1>
+            <p class="subtitle" id="results-sub-heading" style="margin-bottom: 2.5rem;">Real-time vote counts and turnout stats parsed directly from the Excel election database.</p>
+
+            <!-- STATS COUNTER GRID -->
+            <div class="stats-grid">
+                <div class="stat-card" id="stat-card-ballots">
+                    <div class="stat-num" id="stat-total-votes">0</div>
+                    <div class="stat-label">Ballots Cast</div>
+                </div>
+                <div class="stat-card" id="stat-card-turnout">
+                    <div class="stat-num" id="stat-turnout-rate">0%</div>
+                    <div class="stat-label">Turnout Rate</div>
+                </div>
+                <div class="stat-card" id="stat-card-status">
+                    <div class="stat-num" id="stat-election-status" style="color: var(--accent-emerald);">Active</div>
+                    <div class="stat-label">Election Status</div>
+                </div>
+            </div>
+
+            <!-- LEADERBOARD / WINNERS PANEL -->
+            <div class="leaderboard-card">
+                <h3 class="chart-title"><i class="fa-solid fa-trophy" style="color: #fbbf24; margin-right: 0.5rem;"></i> Projected Winners</h3>
+                <div id="projected-winners-container">
+                    <!-- Project winners rendered dynamically here -->
+                </div>
+            </div>
+
+            <!-- GRAPHICAL CHARTS SECTIONS -->
+            <div class="results-sections">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fa-solid fa-chevron-right"></i> President Tally</h3>
+                    <div class="chart-container">
+                        <canvas id="presidentChart" aria-label="President Vote Tally Chart" role="img"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fa-solid fa-chevron-right"></i> Vice President Tally</h3>
+                    <div class="chart-container">
+                        <canvas id="vpChart" aria-label="Vice President Vote Tally Chart" role="img"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN SYSTEM SETTINGS / DATABASE PANELS -->
+            <div class="admin-panel">
+                <h3 class="admin-title"><i class="fa-solid fa-gears" style="color: var(--primary);"></i> Election Administration & Audit Logs</h3>
+                <p class="subtitle" style="text-align: left; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                    Download the raw Excel ballot spreadsheet, import previous databases, or wipe the local cache to start a fresh school election.
+                </p>
+
+                <div class="admin-actions">
+                    <button class="btn" id="btn-export-excel" onclick="handleExportExcel()">
+                        <i class="fa-solid fa-file-export"></i> Download Excel Tally
+                    </button>
+                    
+                    <button class="btn secondary" id="btn-import-excel" onclick="triggerFileInput()">
+                        <i class="fa-solid fa-file-import"></i> Upload Excel Tally
+                    </button>
+                    <input type="file" id="excel-file-input" accept=".xlsx" style="display: none;" onchange="handleImportExcel(event)">
+
+                    <button class="btn danger" id="btn-reset-election" onclick="handleResetElection()">
+                        <i class="fa-solid fa-trash-can"></i> Reset Database
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="toast">
+        <i class="fa-solid fa-circle-exclamation" id="toast-icon"></i>
+        <span id="toast-message">Notification message</span>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Digital School Voting System. Audit compliance Microsoft Excel (.xlsx) standard.</p>
+    </footer>
+
+    <!-- Include JavaScript core and page logic -->
+    <script src="js/core.js"></script>
+    <script src="js/results.js"></script>
+</body>
+</html>

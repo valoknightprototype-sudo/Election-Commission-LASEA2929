@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure, fast, and digital student voting system for school elections. Cast your vote securely and view election stats.">
+    <title>School Student Council Election - Digital Voting Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome for sleek modern interface icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS Excel Library for browser-based spreadsheet generation -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon"><i class="fa-solid fa-check-to-slot"></i></div>
+            <span class="logo-text" id="header-election-title">School Elections</span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="active" id="nav-vote-link"><i class="fa-solid fa-vote-yea"></i> Vote Portal</a>
+            <a href="results.html" id="nav-results-link"><i class="fa-solid fa-chart-pie"></i> Election Results</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- STEP 1: STUDENT ID LOGIN -->
+        <section id="step-login" class="step-container glass-card active">
+            <h1 id="portal-main-heading">Digital Voting Portal</h1>
+            <p class="subtitle" id="portal-sub-heading">Please enter your registered Student ID to access the digital ballot box.</p>
+            
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="student-id-input">Student ID Card Number</label>
+                    <input type="text" id="student-id-input" class="input-field" placeholder="e.g. STU1001" required autocomplete="off">
+                </div>
+                <button type="submit" class="btn" id="login-submit-btn">
+                    Verify Identity <i class="fa-solid fa-shield-halved"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- STEP 2: DIGITAL BALLOT BOX -->
+        <section id="step-ballot" class="step-container glass-card wide">
+            <div class="ballot-header">
+                <h2 id="ballot-heading">Student Council Ballot</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                    <div><i class="fa-solid fa-user-shield"></i> Voter Session: <strong id="voter-badge-id" style="color: white;">STU1001</strong></div>
+                    <div><i class="fa-solid fa-circle-info"></i> Make 1 choice for each position</div>
+                </div>
+            </div>
+
+            <div id="ballot-positions-container">
+                <!-- Dynamically generated sections for each position will go here -->
+            </div>
+
+            <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn secondary" id="ballot-cancel-btn" onclick="cancelVotingSession()" style="width: auto; flex: 1;">
+                    <i class="fa-solid fa-arrow-left-long"></i> Logout
+                </button>
+                <button class="btn" id="ballot-review-btn" onclick="reviewBallot()" style="width: auto; flex: 2;" disabled>
+                    Review Selection <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 4: VOTING SUCCESS SCREEN -->
+        <section id="step-success" class="step-container glass-card">
+            <div class="success-screen">
+                <div class="success-icon-container" id="success-checkmark">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h1>Ballot Cast Successfully</h1>
+                <p class="subtitle" style="margin-bottom: 1.5rem;">Thank you for exercising your right to vote! Your selections have been saved securely and anonymously in the Excel audit database.</p>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 2rem; font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-lock"></i> Secrecy Tally: The linkage between your Student ID and candidate selections has been destroyed.
+                </div>
+                <button class="btn" id="success-done-btn" onclick="restartSession()">
+                    Next Student <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- MANIFESTO POPUP MODAL -->
+    <div id="manifesto-modal" class="modal-overlay" onclick="closeManifestoModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 class="modal-title" id="manifesto-candidate-name">Candidate Manifesto</h3>
+            <p id="manifesto-candidate-position" style="text-transform: uppercase; font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 1rem;">President</p>
+            <div class="modal-body" id="manifesto-candidate-text">
+                Candidate details...
+            </div>
+            <button class="btn secondary" id="manifesto-close-btn" onclick="closeManifestoModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- REVIEW BALLOT CONFIRMATION MODAL -->
+    <div id="review-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 550px;">
+            <h3 class="modal-title"><i class="fa-solid fa-file-signature" style="color: var(--primary);"></i> Review Your Ballot</h3>
+            <p class="subtitle" style="text-align: left; margin-bottom: 1.5rem;">Please review your choices before casting your vote. You cannot change them after submission.</p>
+            
+            <div id="review-selections-container">
+                <!-- Selections will be rendered here dynamically -->
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn secondary" id="review-edit-btn" onclick="closeReviewModal()" style="flex: 1;">
+                    <i class="fa-solid fa-pen-to-square"></i> Change
+                </button>
+                <button class="btn" id="review-confirm-btn" onclick="submitBallot()" style="flex: 2; background: linear-gradient(135deg, var(--accent-emerald), var(--primary)); box-shadow: 0 4px 15px var(--accent-emerald-glow);">
+                    Cast Secure Ballot <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="toast">
+        <i class="fa-solid fa-circle-exclamation" id="toast-icon"></i>
+        <span id="toast-message">Notification message</span>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Digital School Voting System. Audit compliance Microsoft Excel (.xlsx) standard.</p>
+    </footer>
+
+    <!-- Include Javascript files -->
+    <script src="js/core.js"></script>
+    <script src="js/voting.js"></script>
+</body>
+</html>
